@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<body>
+
+  <div ng-app="myApp" ng-controller="myController">
+    <input type="text" placeholder="First Name" ng-model="user.firstName"><br>
+    <input type="text" placeholder="Last Name" ng-model="user.lastName"><br>
+    <input type="email" placeholder="Email" ng-model="user.email"><br>
+    <input type="number" placeholder="Phone Number" ng-model="user.phoneNumber"><br>
+    <input type="file" placeholder="Profile Image" ng-model="user.profileImage" onchange="selectFiles(this)"><br>
+    <button ng-hide="isEdit" ng-click="addUser(user)">Submit</button>
+    <button ng-show="isEdit" ng-click="save()">Save</button>
+    <button ng-show="isEdit" ng-click="cancel()">Cancel</button>
+
+    <br><br><br>
+
+    <table>
+      <thead>
+        <tr>
+          <td>First Name</td>
+          <td>Last Name</td>
+          <td>Email</td>
+          <td>Phone Number</td>
+          <td>Image</td>
+          <td ng-hide="isEdit">Action</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="user in allUsers">
+          <td>{{user.firstName}}</td>
+          <td>{{user.lastName}}</td>
+          <td>{{user.email}}</td>
+          <td>{{user.phoneNumber}}</td>
+          <td>
+            <a ng-href="http://localhost:3000/images/{{user.profileImage}}" target="_blank">Image</a>
+          </td>
+          <td ng-hide="isEdit">
+            <button ng-click="editUser(user)">Edit</button>
+            <button ng-click="deleteUser(user._id)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</body>
+</html>
+
+<script>
+  var app = angular.module('myApp', []);
+  const apiURL = 'http://localhost:3000/';
+  
+  app.controller('myController', ($scope, $http) => {
+
+    selectFiles = (data) => {
+      $scope.profileImage = data.files[0];
+    }
+    
+    $scope.addUser = function () {
+      
+      let formData = new FormData();
+      formData.append('firstName', $scope.user.firstName);
+      formData.append('lastName', $scope.user.lastName);
+      formData.append('email', $scope.user.email);
+      formData.append('phoneNumber', $scope.user.phoneNumber);
+      formData.append('profileImage', $scope.user.profileImage);
+
+      $http({
+        url: apiURL + 'user/add',
+        method: 'POST',
+        headers: {'Content-Type': undefined},
+        data: formData
+      }).then(function (res) {
+        $scope.user = {}
+        $scope.getAllUsers();
+      }, function(err){
+          console.log(err);
+      })
+    }
+
+    $scope.getAllUsers = () => {
+      $http({
+        url: apiURL + 'user',
+        method: 'GET',
+        headers: {'Content-Type': 'application/json'}
+      }).then(resp => {
+        $scope.allUsers = resp.data.response;
+        console.log($scope.allUsers);
+      })
+    }
+    $scope.getAllUsers();
+
+    $scope.editUser = (user) => {
+      $scope.isEdit = true;
+      $scope.user = angular.copy(user);
+    }
+
+    $scope.save = () => {
+      let formData = new FormData();
+      formData.append('_id', $scope.user._id);
+      formData.append('firstName', $scope.user.firstName);
+      formData.append('lastName', $scope.user.lastName);
+      formData.append('email', $scope.user.email);
+      formData.append('phoneNumber', $scope.user.phoneNumber);
+      formData.append('profileImage', $scope.user.profileImage);
+
+      $http({
+        url: apiURL + 'user/update',
+        method: 'POST',
+        headers: {'Content-Type': undefined},
+        data: formData
+      }).then(function (res) {
+        $scope.user = {};
+        $scope.isEdit = false
+        $scope.getAllUsers();
+      }, function(err){
+          console.log(err);
+      })
+    }
+
+    $scope.cancel = () => {
+      $scope.isEdit = false;
+      $scope.user = {};
+    }
+
+    $scope.deleteUser = (userId) => {
+      $http({
+        url: apiURL + 'user/delete',
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        data: {
+          _id: userId
+        }
+      }).then(resp => {
+        $scope.getAllUsers();
+      }).catch(err => {
+
+      })
+    }
+
+  });
+</script>

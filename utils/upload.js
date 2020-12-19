@@ -18,7 +18,9 @@ module.exports = (req, res, next) => {
         if (err) {
             throw err;
         }
-        req.body.profileImage = req.file.filename;
+        if (req.file && req.file.filename) {
+            req.body.profileImage = req.file.filename;
+        }
         next()
     });
 }
