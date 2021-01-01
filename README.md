@@ -1,6 +1,7 @@
 # MEAN-Stack-CRUD-App
 
 Angular Version: 1.6.9
+
 Node Version: 10.15.0
 
 I've built this application to serve the code as a machine test to an organization
