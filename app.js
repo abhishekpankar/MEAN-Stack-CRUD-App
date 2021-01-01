@@ -5,7 +5,20 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
-const db = require('./model/dbConfig');
+const mongoose = require('mongoose');
+const config = require('./utils/config');
+
+mongoose.connect(config.URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true
+}, (err) => {
+    if (err) {
+        throw err;
+    }
+    console.log('Databse Connected');
+});
 
 var app = express();
 
