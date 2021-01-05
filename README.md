@@ -1,4 +1,4 @@
-# MEAN-Stack-CRUD-App
+# mean-stack-crud-app
 
 Angular Version: 1.6.9
 
